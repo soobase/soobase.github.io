@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 연봉 실수령액 계산기 - 월급 세후 금액 자동 계산</title>
+<meta name="description" content="2026년 4대보험 요율과 소득세를 반영한 연봉 실수령액 계산기. 연봉 2,000만원부터 1억 2,000만원까지 100만원 단위 실수령액 표도 함께 제공합니다.">
+<link rel="canonical" href="https://soobase.github.io/">
+<meta property="og:title" content="2026 연봉 실수령액 계산기">
+<meta property="og:description" content="2026년 기준 연봉별 월 실수령액을 바로 확인하세요.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "실수령액이 왜 사람마다 다른가요?", "acceptedAnswer": {"@type": "Answer", "text": "부양가족 수와 비과세 급여(식대 등)가 공제액을 바꾸기 때문입니다. 부양가족이 많을수록 과세표준이 줄어 세금이 내려가고, 비과세 항목은 4대보험과 소득세 계산에서 아예 빠집니다."}}, {"@type": "Question", "name": "표의 금액과 제 급여명세서가 다릅니다.", "acceptedAnswer": {"@type": "Answer", "text": "회사는 매달 근로소득 간이세액표로 세금을 떼고, 그 차액은 이듬해 연말정산에서 정산합니다. 이 표는 연간 확정세액 기준이라 실제 월 공제액보다 조금 낮게 나올 수 있습니다."}}, {"@type": "Question", "name": "4대보험은 회사도 내나요?", "acceptedAnswer": {"@type": "Answer", "text": "국민연금과 건강보험은 회사와 근로자가 절반씩, 고용보험은 근로자 0.9%에 회사가 더 많은 비율을 부담합니다. 산재보험은 전액 회사 부담입니다. 이 표에는 근로자 부담분만 들어 있습니다."}}, {"@type": "Question", "name": "국민연금에 상한이 있다고 들었습니다.", "acceptedAnswer": {"@type": "Answer", "text": "기준소득월액 상한이 637만원이라 월 급여가 그보다 많아도 국민연금은 637만원 기준으로만 부과됩니다. 그래서 고연봉일수록 국민연금이 차지하는 비중이 줄어듭니다."}}]}</script>
+<style>
+:root{--bg:#fff;--fg:#1b1b1b;--mut:#666;--line:#e5e5e5;--acc:#1a56db;--net:#0b7a3b}
+@media(prefers-color-scheme:dark){:root{--bg:#141414;--fg:#eee;--mut:#9a9a9a;--line:#2e2e2e;--acc:#6c9bff;--net:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Malgun Gothic","맑은 고딕",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.65rem;line-height:1.35;margin:.2em 0 .1em}
+h2{font-size:1.2rem;margin:2.2em 0 .6em;padding-top:.6em;border-top:1px solid var(--line)}
+.lead{color:var(--mut);margin:.2em 0 1.6em}
+.card{border:1px solid var(--line);border-radius:12px;padding:18px;margin:0 0 20px}
+label{display:block;font-size:.88rem;color:var(--mut);margin:12px 0 4px}
+input,select{width:100%;padding:11px 12px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.out{margin-top:18px;padding:16px;border-radius:10px;background:rgba(127,127,127,.09)}
+.out .big{font-size:1.9rem;font-weight:700;color:var(--net)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th[scope=row]{text-align:left;font-weight:600}
+thead th{text-align:right;color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--bg)}
+.net{color:var(--net);font-weight:700}
+.scroll{overflow-x:auto;max-height:620px;overflow-y:auto;border:1px solid var(--line);border-radius:10px}
+details{border-bottom:1px solid var(--line);padding:12px 0}
+summary{cursor:pointer;font-weight:600}
+details p{color:var(--mut);margin:.7em 0 0}
+footer{margin-top:48px;color:var(--mut);font-size:.82rem}
+small{color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>2026 연봉 실수령액 계산기</h1>
+<p class="lead">연봉을 넣으면 4대보험과 세금을 뺀 월 실수령액이 바로 나옵니다. 2026년 요율 기준입니다.</p>
+
+<div class="card">
+  <label for="pay">연봉 (만원)</label>
+  <input id="pay" type="number" inputmode="numeric" placeholder="예: 4000" value="4000">
+  <label for="dep">부양가족 수 (본인 포함)</label>
+  <input id="dep" type="number" inputmode="numeric" min="1" value="1">
+  <label for="nt">월 비과세액 (원) — 식대 등</label>
+  <input id="nt" type="number" inputmode="numeric" min="0" value="0">
+  <div class="out">
+    <div><small>월 실수령액</small></div>
+    <div class="big" id="net">-</div>
+    <table style="margin-top:12px"><tbody id="rows"></tbody></table>
+  </div>
+</div>
+
+<h2>연봉별 실수령액 표 (2026년)</h2>
+<p>부양가족 1명·비과세 0원 기준입니다. 단위는 원.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">연봉(만원)</th><th scope="col">월 세전</th><th scope="col">국민연금</th><th scope="col">건강+장기요양</th><th scope="col">고용보험</th><th scope="col">소득세+지방세</th><th scope="col">월 실수령액</th></tr></thead>
+<tbody>
+<tr><th scope="row">2,000</th><td>1,666,667</td><td>79,167</td><td>67,790</td><td>15,000</td><td>20,559</td><td class="net">1,484,152</td></tr>
+<tr><th scope="row">2,100</th><td>1,750,000</td><td>83,125</td><td>71,179</td><td>15,750</td><td>22,422</td><td class="net">1,557,524</td></tr>
+<tr><th scope="row">2,200</th><td>1,833,333</td><td>87,083</td><td>74,569</td><td>16,500</td><td>24,285</td><td class="net">1,630,896</td></tr>
+<tr><th scope="row">2,300</th><td>1,916,667</td><td>91,042</td><td>77,958</td><td>17,250</td><td>26,148</td><td class="net">1,704,268</td></tr>
+<tr><th scope="row">2,400</th><td>2,000,000</td><td>95,000</td><td>81,348</td><td>18,000</td><td>28,012</td><td class="net">1,777,641</td></tr>
+<tr><th scope="row">2,500</th><td>2,083,333</td><td>98,958</td><td>84,737</td><td>18,750</td><td>29,875</td><td class="net">1,851,013</td></tr>
+<tr><th scope="row">2,600</th><td>2,166,667</td><td>102,917</td><td>88,127</td><td>19,500</td><td>31,738</td><td class="net">1,924,385</td></tr>
+<tr><th scope="row">2,700</th><td>2,250,000</td><td>106,875</td><td>91,516</td><td>20,250</td><td>33,601</td><td class="net">1,997,758</td></tr>
+<tr><th scope="row">2,800</th><td>2,333,333</td><td>110,833</td><td>94,906</td><td>21,000</td><td>36,687</td><td class="net">2,069,908</td></tr>
+<tr><th scope="row">2,900</th><td>2,416,667</td><td>114,792</td><td>98,295</td><td>21,750</td><td>41,345</td><td class="net">2,140,485</td></tr>
+<tr><th scope="row">3,000</th><td>2,500,000</td><td>118,750</td><td>101,685</td><td>22,500</td><td>46,003</td><td class="net">2,211,063</td></tr>
+<tr><th scope="row">3,100</th><td>2,583,333</td><td>122,708</td><td>105,074</td><td>23,250</td><td>50,661</td><td class="net">2,281,640</td></tr>
+<tr><th scope="row">3,200</th><td>2,666,667</td><td>126,667</td><td>108,464</td><td>24,000</td><td>56,260</td><td class="net">2,351,276</td></tr>
+<tr><th scope="row">3,300</th><td>2,750,000</td><td>130,625</td><td>111,853</td><td>24,750</td><td>65,449</td><td class="net">2,417,323</td></tr>
+<tr><th scope="row">3,400</th><td>2,833,333</td><td>134,583</td><td>115,243</td><td>25,500</td><td>76,534</td><td class="net">2,481,474</td></tr>
+<tr><th scope="row">3,500</th><td>2,916,667</td><td>138,542</td><td>118,632</td><td>26,250</td><td>87,618</td><td class="net">2,545,625</td></tr>
+<tr><th scope="row">3,600</th><td>3,000,000</td><td>142,500</td><td>122,021</td><td>27,000</td><td>98,703</td><td class="net">2,609,775</td></tr>
+<tr><th scope="row">3,700</th><td>3,083,333</td><td>146,458</td><td>125,411</td><td>27,750</td><td>109,788</td><td class="net">2,673,926</td></tr>
+<tr><th scope="row">3,800</th><td>3,166,667</td><td>150,417</td><td>128,800</td><td>28,500</td><td>120,873</td><td class="net">2,738,077</td></tr>
+<tr><th scope="row">3,900</th><td>3,250,000</td><td>154,375</td><td>132,190</td><td>29,250</td><td>131,957</td><td class="net">2,802,228</td></tr>
+<tr><th scope="row">4,000</th><td>3,333,333</td><td>158,333</td><td>135,579</td><td>30,000</td><td>143,042</td><td class="net">2,866,379</td></tr>
+<tr><th scope="row">4,100</th><td>3,416,667</td><td>162,292</td><td>138,969</td><td>30,750</td><td>154,127</td><td class="net">2,930,529</td></tr>
+<tr><th scope="row">4,200</th><td>3,500,000</td><td>166,250</td><td>142,358</td><td>31,500</td><td>165,211</td><td class="net">2,994,680</td></tr>
+<tr><th scope="row">4,300</th><td>3,583,333</td><td>170,208</td><td>145,748</td><td>32,250</td><td>176,296</td><td class="net">3,058,831</td></tr>
+<tr><th scope="row">4,400</th><td>3,666,667</td><td>174,167</td><td>149,137</td><td>33,000</td><td>186,647</td><td class="net">3,123,715</td></tr>
+<tr><th scope="row">4,500</th><td>3,750,000</td><td>178,125</td><td>152,527</td><td>33,750</td><td>196,999</td><td class="net">3,188,599</td></tr>
+<tr><th scope="row">4,600</th><td>3,833,333</td><td>182,083</td><td>155,916</td><td>34,500</td><td>208,725</td><td class="net">3,252,109</td></tr>
+<tr><th scope="row">4,700</th><td>3,916,667</td><td>186,042</td><td>159,306</td><td>35,250</td><td>220,451</td><td class="net">3,315,618</td></tr>
+<tr><th scope="row">4,800</th><td>4,000,000</td><td>190,000</td><td>162,695</td><td>36,000</td><td>232,178</td><td class="net">3,379,127</td></tr>
+<tr><th scope="row">4,900</th><td>4,083,333</td><td>193,958</td><td>166,085</td><td>36,750</td><td>243,904</td><td class="net">3,442,636</td></tr>
+<tr><th scope="row">5,000</th><td>4,166,667</td><td>197,917</td><td>169,474</td><td>37,500</td><td>255,630</td><td class="net">3,506,145</td></tr>
+<tr><th scope="row">5,100</th><td>4,250,000</td><td>201,875</td><td>172,864</td><td>38,250</td><td>267,357</td><td class="net">3,569,654</td></tr>
+<tr><th scope="row">5,200</th><td>4,333,333</td><td>205,833</td><td>176,253</td><td>39,000</td><td>279,083</td><td class="net">3,633,164</td></tr>
+<tr><th scope="row">5,300</th><td>4,416,667</td><td>209,792</td><td>179,643</td><td>39,750</td><td>290,810</td><td class="net">3,696,673</td></tr>
+<tr><th scope="row">5,400</th><td>4,500,000</td><td>213,750</td><td>183,032</td><td>40,500</td><td>302,536</td><td class="net">3,760,182</td></tr>
+<tr><th scope="row">5,500</th><td>4,583,333</td><td>217,708</td><td>186,422</td><td>41,250</td><td>314,262</td><td class="net">3,823,691</td></tr>
+<tr><th scope="row">5,600</th><td>4,666,667</td><td>221,667</td><td>189,811</td><td>42,000</td><td>325,989</td><td class="net">3,887,200</td></tr>
+<tr><th scope="row">5,700</th><td>4,750,000</td><td>225,625</td><td>193,201</td><td>42,750</td><td>337,715</td><td class="net">3,950,709</td></tr>
+<tr><th scope="row">5,800</th><td>4,833,333</td><td>229,583</td><td>196,590</td><td>43,500</td><td>349,441</td><td class="net">4,014,218</td></tr>
+<tr><th scope="row">5,900</th><td>4,916,667</td><td>233,542</td><td>199,980</td><td>44,250</td><td>361,168</td><td class="net">4,077,728</td></tr>
+<tr><th scope="row">6,000</th><td>5,000,000</td><td>237,500</td><td>203,369</td><td>45,000</td><td>372,894</td><td class="net">4,141,237</td></tr>
+<tr><th scope="row">6,100</th><td>5,083,333</td><td>241,458</td><td>206,759</td><td>45,750</td><td>384,620</td><td class="net">4,204,746</td></tr>
+<tr><th scope="row">6,200</th><td>5,166,667</td><td>245,417</td><td>210,148</td><td>46,500</td><td>396,347</td><td class="net">4,268,255</td></tr>
+<tr><th scope="row">6,300</th><td>5,250,000</td><td>249,375</td><td>213,538</td><td>47,250</td><td>408,073</td><td class="net">4,331,764</td></tr>
+<tr><th scope="row">6,400</th><td>5,333,333</td><td>253,333</td><td>216,927</td><td>48,000</td><td>419,800</td><td class="net">4,395,273</td></tr>
+<tr><th scope="row">6,500</th><td>5,416,667</td><td>257,292</td><td>220,317</td><td>48,750</td><td>431,526</td><td class="net">4,458,783</td></tr>
+<tr><th scope="row">6,600</th><td>5,500,000</td><td>261,250</td><td>223,706</td><td>49,500</td><td>443,252</td><td class="net">4,522,292</td></tr>
+<tr><th scope="row">6,700</th><td>5,583,333</td><td>265,208</td><td>227,096</td><td>50,250</td><td>454,979</td><td class="net">4,585,801</td></tr>
+<tr><th scope="row">6,800</th><td>5,666,667</td><td>269,167</td><td>230,485</td><td>51,000</td><td>466,705</td><td class="net">4,649,310</td></tr>
+<tr><th scope="row">6,900</th><td>5,750,000</td><td>273,125</td><td>233,875</td><td>51,750</td><td>478,431</td><td class="net">4,712,819</td></tr>
+<tr><th scope="row">7,000</th><td>5,833,333</td><td>277,083</td><td>237,264</td><td>52,500</td><td>490,158</td><td class="net">4,776,328</td></tr>
+<tr><th scope="row">7,100</th><td>5,916,667</td><td>281,042</td><td>240,653</td><td>53,250</td><td>502,342</td><td class="net">4,839,379</td></tr>
+<tr><th scope="row">7,200</th><td>6,000,000</td><td>285,000</td><td>244,043</td><td>54,000</td><td>515,793</td><td class="net">4,901,164</td></tr>
+<tr><th scope="row">7,300</th><td>6,083,333</td><td>288,958</td><td>247,432</td><td>54,750</td><td>535,014</td><td class="net">4,957,179</td></tr>
+<tr><th scope="row">7,400</th><td>6,166,667</td><td>292,917</td><td>250,822</td><td>55,500</td><td>554,234</td><td class="net">5,013,194</td></tr>
+<tr><th scope="row">7,500</th><td>6,250,000</td><td>296,875</td><td>254,211</td><td>56,250</td><td>573,455</td><td class="net">5,069,209</td></tr>
+<tr><th scope="row">7,600</th><td>6,333,333</td><td>300,833</td><td>257,601</td><td>57,000</td><td>592,675</td><td class="net">5,125,224</td></tr>
+<tr><th scope="row">7,700</th><td>6,416,667</td><td>302,575</td><td>260,990</td><td>57,750</td><td>612,481</td><td class="net">5,182,870</td></tr>
+<tr><th scope="row">7,800</th><td>6,500,000</td><td>302,575</td><td>264,380</td><td>58,500</td><td>632,747</td><td class="net">5,241,799</td></tr>
+<tr><th scope="row">7,900</th><td>6,583,333</td><td>302,575</td><td>267,769</td><td>59,250</td><td>653,012</td><td class="net">5,300,727</td></tr>
+<tr><th scope="row">8,000</th><td>6,666,667</td><td>302,575</td><td>271,159</td><td>60,000</td><td>673,278</td><td class="net">5,359,655</td></tr>
+<tr><th scope="row">8,100</th><td>6,750,000</td><td>302,575</td><td>274,548</td><td>60,750</td><td>693,543</td><td class="net">5,418,584</td></tr>
+<tr><th scope="row">8,200</th><td>6,833,333</td><td>302,575</td><td>277,938</td><td>61,500</td><td>713,809</td><td class="net">5,477,512</td></tr>
+<tr><th scope="row">8,300</th><td>6,916,667</td><td>302,575</td><td>281,327</td><td>62,250</td><td>734,074</td><td class="net">5,536,440</td></tr>
+<tr><th scope="row">8,400</th><td>7,000,000</td><td>302,575</td><td>284,717</td><td>63,000</td><td>754,340</td><td class="net">5,595,369</td></tr>
+<tr><th scope="row">8,500</th><td>7,083,333</td><td>302,575</td><td>288,106</td><td>63,750</td><td>774,605</td><td class="net">5,654,297</td></tr>
+<tr><th scope="row">8,600</th><td>7,166,667</td><td>302,575</td><td>291,496</td><td>64,500</td><td>794,871</td><td class="net">5,713,225</td></tr>
+<tr><th scope="row">8,700</th><td>7,250,000</td><td>302,575</td><td>294,885</td><td>65,250</td><td>815,136</td><td class="net">5,772,154</td></tr>
+<tr><th scope="row">8,800</th><td>7,333,333</td><td>302,575</td><td>298,275</td><td>66,000</td><td>835,402</td><td class="net">5,831,082</td></tr>
+<tr><th scope="row">8,900</th><td>7,416,667</td><td>302,575</td><td>301,664</td><td>66,750</td><td>855,667</td><td class="net">5,890,010</td></tr>
+<tr><th scope="row">9,000</th><td>7,500,000</td><td>302,575</td><td>305,054</td><td>67,500</td><td>875,933</td><td class="net">5,948,939</td></tr>
+<tr><th scope="row">9,100</th><td>7,583,333</td><td>302,575</td><td>308,443</td><td>68,250</td><td>896,198</td><td class="net">6,007,867</td></tr>
+<tr><th scope="row">9,200</th><td>7,666,667</td><td>302,575</td><td>311,833</td><td>69,000</td><td>916,464</td><td class="net">6,066,795</td></tr>
+<tr><th scope="row">9,300</th><td>7,750,000</td><td>302,575</td><td>315,222</td><td>69,750</td><td>936,729</td><td class="net">6,125,724</td></tr>
+<tr><th scope="row">9,400</th><td>7,833,333</td><td>302,575</td><td>318,612</td><td>70,500</td><td>956,995</td><td class="net">6,184,652</td></tr>
+<tr><th scope="row">9,500</th><td>7,916,667</td><td>302,575</td><td>322,001</td><td>71,250</td><td>977,260</td><td class="net">6,243,580</td></tr>
+<tr><th scope="row">9,600</th><td>8,000,000</td><td>302,575</td><td>325,391</td><td>72,000</td><td>997,526</td><td class="net">6,302,509</td></tr>
+<tr><th scope="row">9,700</th><td>8,083,333</td><td>302,575</td><td>328,780</td><td>72,750</td><td>1,017,791</td><td class="net">6,361,437</td></tr>
+<tr><th scope="row">9,800</th><td>8,166,667</td><td>302,575</td><td>332,170</td><td>73,500</td><td>1,038,057</td><td class="net">6,420,365</td></tr>
+<tr><th scope="row">9,900</th><td>8,250,000</td><td>302,575</td><td>335,559</td><td>74,250</td><td>1,058,322</td><td class="net">6,479,294</td></tr>
+<tr><th scope="row">10,000</th><td>8,333,333</td><td>302,575</td><td>338,949</td><td>75,000</td><td>1,078,588</td><td class="net">6,538,222</td></tr>
+<tr><th scope="row">10,100</th><td>8,416,667</td><td>302,575</td><td>342,338</td><td>75,750</td><td>1,099,513</td><td class="net">6,596,490</td></tr>
+<tr><th scope="row">10,200</th><td>8,500,000</td><td>302,575</td><td>345,728</td><td>76,500</td><td>1,120,439</td><td class="net">6,654,759</td></tr>
+<tr><th scope="row">10,300</th><td>8,583,333</td><td>302,575</td><td>349,117</td><td>77,250</td><td>1,140,906</td><td class="net">6,713,485</td></tr>
+<tr><th scope="row">10,400</th><td>8,666,667</td><td>302,575</td><td>352,507</td><td>78,000</td><td>1,161,373</td><td class="net">6,772,212</td></tr>
+<tr><th scope="row">10,500</th><td>8,750,000</td><td>302,575</td><td>355,896</td><td>78,750</td><td>1,181,840</td><td class="net">6,830,939</td></tr>
+<tr><th scope="row">10,600</th><td>8,833,333</td><td>302,575</td><td>359,285</td><td>79,500</td><td>1,202,307</td><td class="net">6,889,665</td></tr>
+<tr><th scope="row">10,700</th><td>8,916,667</td><td>302,575</td><td>362,675</td><td>80,250</td><td>1,222,775</td><td class="net">6,948,392</td></tr>
+<tr><th scope="row">10,800</th><td>9,000,000</td><td>302,575</td><td>366,064</td><td>81,000</td><td>1,243,242</td><td class="net">7,007,119</td></tr>
+<tr><th scope="row">10,900</th><td>9,083,333</td><td>302,575</td><td>369,454</td><td>81,750</td><td>1,263,709</td><td class="net">7,065,845</td></tr>
+<tr><th scope="row">11,000</th><td>9,166,667</td><td>302,575</td><td>372,843</td><td>82,500</td><td>1,284,176</td><td class="net">7,124,572</td></tr>
+<tr><th scope="row">11,100</th><td>9,250,000</td><td>302,575</td><td>376,233</td><td>83,250</td><td>1,304,643</td><td class="net">7,183,299</td></tr>
+<tr><th scope="row">11,200</th><td>9,333,333</td><td>302,575</td><td>379,622</td><td>84,000</td><td>1,325,111</td><td class="net">7,242,025</td></tr>
+<tr><th scope="row">11,300</th><td>9,416,667</td><td>302,575</td><td>383,012</td><td>84,750</td><td>1,345,578</td><td class="net">7,300,752</td></tr>
+<tr><th scope="row">11,400</th><td>9,500,000</td><td>302,575</td><td>386,401</td><td>85,500</td><td>1,367,822</td><td class="net">7,357,701</td></tr>
+<tr><th scope="row">11,500</th><td>9,583,333</td><td>302,575</td><td>389,791</td><td>86,250</td><td>1,397,670</td><td class="net">7,407,047</td></tr>
+<tr><th scope="row">11,600</th><td>9,666,667</td><td>302,575</td><td>393,180</td><td>87,000</td><td>1,427,518</td><td class="net">7,456,393</td></tr>
+<tr><th scope="row">11,700</th><td>9,750,000</td><td>302,575</td><td>396,570</td><td>87,750</td><td>1,457,366</td><td class="net">7,505,739</td></tr>
+<tr><th scope="row">11,800</th><td>9,833,333</td><td>302,575</td><td>399,959</td><td>88,500</td><td>1,487,214</td><td class="net">7,555,085</td></tr>
+<tr><th scope="row">11,900</th><td>9,916,667</td><td>302,575</td><td>403,349</td><td>89,250</td><td>1,517,062</td><td class="net">7,604,431</td></tr>
+<tr><th scope="row">12,000</th><td>10,000,000</td><td>302,575</td><td>406,738</td><td>90,000</td><td>1,546,910</td><td class="net">7,653,776</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>2026년 공제 요율</h2>
+<p>근로자가 부담하는 비율만 적었습니다. 괄호 안은 계산 기준입니다.</p>
+<ul>
+<li>국민연금 <strong>4.75%</strong> — 기준소득월액 상한 637만원</li>
+<li>건강보험 <strong>3.595%</strong></li>
+<li>장기요양보험 <strong>건강보험료의 13.14%</strong></li>
+<li>고용보험 <strong>0.9%</strong></li>
+<li>근로소득세 <strong>6~45%</strong> 8구간 누진 + 지방소득세(소득세의 10%)</li>
+</ul>
+
+<h2>자주 묻는 질문</h2>
+<details><summary>실수령액이 왜 사람마다 다른가요?</summary><p>부양가족 수와 비과세 급여(식대 등)가 공제액을 바꾸기 때문입니다. 부양가족이 많을수록 과세표준이 줄어 세금이 내려가고, 비과세 항목은 4대보험과 소득세 계산에서 아예 빠집니다.</p></details>
+<details><summary>표의 금액과 제 급여명세서가 다릅니다.</summary><p>회사는 매달 근로소득 간이세액표로 세금을 떼고, 그 차액은 이듬해 연말정산에서 정산합니다. 이 표는 연간 확정세액 기준이라 실제 월 공제액보다 조금 낮게 나올 수 있습니다.</p></details>
+<details><summary>4대보험은 회사도 내나요?</summary><p>국민연금과 건강보험은 회사와 근로자가 절반씩, 고용보험은 근로자 0.9%에 회사가 더 많은 비율을 부담합니다. 산재보험은 전액 회사 부담입니다. 이 표에는 근로자 부담분만 들어 있습니다.</p></details>
+<details><summary>국민연금에 상한이 있다고 들었습니다.</summary><p>기준소득월액 상한이 637만원이라 월 급여가 그보다 많아도 국민연금은 637만원 기준으로만 부과됩니다. 그래서 고연봉일수록 국민연금이 차지하는 비중이 줄어듭니다.</p></details>
+
+<footer>
+<p>이 페이지의 계산은 참고용입니다. 실제 공제액은 회사의 급여 규정과 연말정산 결과에 따라 달라집니다.</p>
+<p>© 2026 soobase</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  var F=function(id){return document.getElementById(id)};
+  var w=function(x){return Math.round(x).toLocaleString('ko-KR')+'원'};
+  function ded(g){if(g<=5e6)return g*.7;if(g<=15e6)return 3.5e6+(g-5e6)*.4;if(g<=45e6)return 7.5e6+(g-15e6)*.15;if(g<=1e8)return 1.2e7+(g-45e6)*.05;return Math.min(1.475e7+(g-1e8)*.02,2e7)}
+  function tax(b){var T=[[14e6,.06,0],[5e7,.15,126e4],[8.8e7,.24,576e4],[1.5e8,.35,1544e4],[3e8,.38,1994e4],[5e8,.40,2594e4],[1e9,.42,3594e4],[Infinity,.45,6594e4]];for(var i=0;i<T.length;i++)if(b<=T[i][0])return Math.max(0,b*T[i][1]-T[i][2])}
+  function credit(t,g){var c=t<=13e5?t*.55:715e3+(t-13e5)*.3,l;if(g<=33e6)l=74e4;else if(g<=7e7)l=Math.max(74e4-(g-33e6)*.008,66e4);else if(g<=1.2e8)l=Math.max(66e4-(g-7e7)*.005,5e5);else l=Math.max(5e5-(g-1.2e8)*.005,2e5);return Math.min(c,l)}
+  function run(){
+    var man=+F('pay').value||0, dep=Math.max(1,+F('dep').value||1), nt=+F('nt').value||0;
+    if(!man){F('net').textContent='-';F('rows').innerHTML='';return}
+    var pay=man*1e4, mg=pay/12, mt=Math.max(0,mg-nt), gross=mt*12;
+    var pen=Math.min(Math.max(mt,4e5),6370000)*.0475, hea=mt*.03595, ltc=hea*.1314, emp=mt*.009;
+    var base=Math.max(0,(gross-ded(gross))-15e5*dep-(pen+hea+ltc+emp)*12);
+    var t=tax(base), it=Math.max(0,t-credit(t,gross))/12, lt=it*.1;
+    var tot=pen+hea+ltc+emp+it+lt, net=mg-tot;
+    F('net').textContent=w(net);
+    var r=[['월 세전 급여',mg],['국민연금',-pen],['건강보험',-hea],['장기요양보험',-ltc],['고용보험',-emp],['근로소득세',-it],['지방소득세',-lt],['공제 합계',-tot],['연 실수령액',net*12]];
+    F('rows').innerHTML=r.map(function(x){return '<tr><th scope="row">'+x[0]+'</th><td>'+(x[1]<0?'-':'')+w(Math.abs(x[1]))+'</td></tr>'}).join('');
+  }
+  ['pay','dep','nt'].forEach(function(id){F(id).addEventListener('input',run)});
+  run();
+})();
+</script>
+</body>
+</html>
